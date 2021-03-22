@@ -10,6 +10,7 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+led = False
 def run_time():
     """Really does nothing but
     makes you able to actually
@@ -33,6 +34,7 @@ def get_temperature():
     that also inserts its data into a database.
     """
 
+    global led
 ######################################
     HOST = "192.168.178.10" # Jouw IP
 ######################################
@@ -61,13 +63,21 @@ def get_temperature():
                 db.commit()
                 db.close()
 
-                if int(data) <= 21:
+                if not led:
                     conn.send(ALLOK.encode("utf-8"))
                     print(ALLOK, "sent")
                 else:
+                    led = True
                     conn.send(ALARM.encode("utf-8"))
                     print(ALARM, "sent")
-                
+
+@app.route('/sendled')
+def make_led_shine():
+    global led
+    if led:
+        led = False
+    elif not led:
+        led = True
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -77,6 +87,7 @@ def index():
     graphdata = []
     labels = []
     temp_list = []
+    global led
 
     # Get the input from the database
     db = sqlite3.connect("temp.db", detect_types=sqlite3.PARSE_DECLTYPES)
@@ -97,7 +108,8 @@ def index():
         temp_list=temp_list,
         currtemp=currtemp,
         graphdata=graphdata,
-        labels=labels
+        labels=labels,
+        led=led
         )
 
 if __name__ == "__main__":
