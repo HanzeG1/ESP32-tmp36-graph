@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>ESP32 Temperature data</h1>
+{% endblock %}
+
+{% block content %}
+<div class='container'>
+    <div class='container'>
+        <div class="row align-items-center">
+            <div class="column">
+                <canvas id="tempChart" width="1000" height="500"></canvas>
+                <script>
+                    // Is JS cheating?
+                  var ctx = document.getElementById("tempChart").getContext('2d');
+                  var myChart = new Chart(ctx, {
+                      type: 'line',
+                      data: {
+                          labels: {{ labels }},
+                          datasets: [{
+                              label: 'Temperature',
+                              data: {{ graphdata }},
+                              fill: false,
+                              borderColor: '#ff00000',
+                              backgroundColor: '#ff00000',
+                              borderWidth: 2
+                          }]},
+                      options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                      }
+                  });
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="column col-6">
+            <h4>Last measured temperature is {{ currtemp }}°C.</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Temperature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for time, temp in temp_list %}
+                    <tr>
+                        <td>{{ time }}</td>
+                        <td>{{ temp }}°C</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
